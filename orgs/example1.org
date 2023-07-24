@@ -1,0 +1,145 @@
+* House keeping
+#+begin_src elisp :results none
+  (setq org-confirm-babel-evaluate nil)
+  (pyvenv-workon "fem4inas")
+  (require 'org-tempo)
+#+end_src
+* Imports
+:PROPERTIES:
+:header-args: :session py1
+:END:
+
+#+begin_src python :results none
+  from sympy import *
+  import numpy as np
+  import scipy
+#+end_src
+
+
+* Calculus
+:PROPERTIES:
+:header-args: :session py1
+:END:
+https://docs.sympy.org/latest/modules/calculus/index.html
+
+** Euler Equations
+    Find the Euler-Lagrange equations [1]_ for a given Lagrangian.
+
+    Parameters
+    ==========
+
+    L : Expr
+        The Lagrangian that should be a function of the functions listed
+        in the second argument and their derivatives.
+
+        For example, in the case of two functions $f(x,y)$, $g(x,y)$ and
+        two independent variables $x$, $y$ the Lagrangian has the form:
+        \[
+        .. math:: L\left(f(x,y),g(x,y),\frac{\partial f(x,y)}{\partial x},
+        \frac{\partial f(x,y)}{\partial y},
+        \frac{\partial g(x,y)}{\partial x},
+        \frac{\partial g(x,y)}{\partial y},x,y\right)
+        \]
+
+        In many cases it is not necessary to provide anything, except the
+        Lagrangian, it will be auto-detected (and an error raised if this
+        cannot be done).
+
+    funcs : Function or an iterable of Functions
+        The functions that the Lagrangian depends on. The Euler equations
+        are differential equations for each of these functions.
+
+    vars : Symbol or an iterable of Symbols
+        The Symbols that are the independent variables of the functions.
+
+    Returns
+    =======
+
+    eqns : list of Eq
+        The list of differential equations, one for each function.
+*** Examples
+#+NAME: Cal1
+#+begin_src python
+  x = Function('x')
+  t = Symbol('t')
+  L = (x(t).diff(t))**2/2 - x(t)**2/2
+  euler_equations(L, x(t), t)
+#+end_src
+
+#+RESULTS: Cal1
+| Eq | (-x (t) - Derivative (x (t) (t 2)) 0) |
+
+#+NAME: Cal2
+#+begin_src python
+  u = Function('u')
+  x = Symbol('x')
+  L = (u(t, x).diff(t))**2/2 - (u(t, x).diff(x))**2/2
+  euler_equations(L, u(t, x), [t, x])
+#+end_src
+
+#+RESULTS: Cal2
+| Eq | (-Derivative (u (t x) (t 2)) + Derivative (u (t x) (x 2)) 0) |
+
+** Finite differences
+Finite difference weights
+
+This module implements an algorithm for efficient generation of finite difference weights for ordinary differentials of functions for derivatives from 0 (interpolation) up to arbitrary order.
+
+The core algorithm is provided in the finite difference weight generating function (finite_diff_weights), and two convenience functions are provided for:
+
+    estimating a derivative (or interpolate) directly from a series of points
+
+        is also provided (apply_finite_diff).
+
+    differentiating by using finite difference approximations
+
+        (differentiate_finite).
+
+#+begin_src python
+  f, g = Function('f'), Function('g')
+  differentiate_finite(f(x)*g(x), x, points=[x-h, x+h])
+#+end_src
+
+#+RESULTS:
+: -f(-h + x)*g(-h + x)/(2*h) + f(h + x)*g(h + x)/(2*h)
+
+#+begin_src python
+  f, g = Function('f'), Function('g')
+  differentiate_finite(f(x)*g(x), x, points=[x-h, x+h])
+#+end_src
+
+*** FD weights
+Weights for FD aprox:
+2 => number of derivatives (first row is interpolation)
+S(i) => points where weight is applied
+1 => point where derivative is calculated
+#+begin_src python
+  res = finite_diff_weights(2, [-S(1), S(0), S(1)], 1)
+  res
+#+end_src
+
+#+RESULTS:
+| (1 0 0) | (-1 2 0) | (0 0 1)      |
+| (0 0 0) | (-1 1 0) | (1/2 -2 3/2) |
+| (0 0 0) | (0 0 0)  | (1 -2 1)     |
+
+* Combinatorics
+:PROPERTIES:
+:header-args: :session py1
+:END:
+
+#+begin_src python
+  
+#+end_src
+
+* Integration
+:PROPERTIES:
+:header-args: :session py1
+:END:
+
+
+* Solvers
+** ODEs
+** PDEs
+** Diophantic equations
+https://docs.sympy.org/latest/modules/solvers/diophantine.html
